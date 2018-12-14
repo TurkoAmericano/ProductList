@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <title>Index</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+  Filter by name: <input id="name-filter" type="text" />
+  <button id="search">Search</button>
+  <div id="product-list">
+
+  </div>
+  <button id="previous">Previous</button>&nbsp;
+  <button id="next">Next</button>
+  <span id="record_count"></span> records found.
+</body>
+</html>
+<script>
+
+  
+
+  $(document).ready(function () {
+
+    var currentPageIndex = 0;
+    var totalCount = 0;
+    var pageSize = 0;
+    var filter = '';
+
+    getProducts(currentPageIndex);
+
+    $("#previous").click(function () {
+      currentPageIndex--;
+      getProducts(currentPageIndex);
+    });
+
+    $("#next").click(function () {
+      currentPageIndex++;
+      getProducts(currentPageIndex);
+    });
+
+    $("#search").click(function () {
+      filter = $('#name-filter').val();
+      getProducts(currentPageIndex);
+    });
+
+    function setButtons() {
+      $("#previous").prop("disabled", currentPageIndex === 0);
+      $("#next").prop("disabled", currentPageIndex >= (totalCount / pageSize) - 1);
+    }
+
+    function getProducts(index) {
+      $.ajax({
+        url: "/api/products/" + index + '/' + filter,
+        type: "GET"
+      })
+        .done(function (partialViewResult) {
+          $("#product-list").html(partialViewResult);
+          pageSize = $("#product-list").find("#page-size").val();
+          totalCount = $("#product-list").find("#total-count").val();
+          $('#record_count').text(totalCount);
+          setButtons();
+        });
+    }
+
+  });
+
+  
+</script>
